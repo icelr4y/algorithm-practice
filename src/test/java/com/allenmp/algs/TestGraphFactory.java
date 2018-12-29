@@ -1,4 +1,4 @@
-package com.allenmp.astar;
+package com.allenmp.algs;
 
 import com.google.common.graph.ImmutableValueGraph;
 import com.google.common.graph.MutableValueGraph;
@@ -14,12 +14,12 @@ public class TestGraphFactory extends TestCase {
 	
 	MutableValueGraph<Node, Double> g1 = ValueGraphBuilder.undirected().build();
 	
-	Node n1 = new Node(1);
-	Node n2 = new Node(2);
-	Node n3 = new Node(3);
-	Node n4 = new Node(4);
-	Node n5 = new Node(5);
-	Node n6 = new Node(6);
+	Node n1 = new Node(1, new double[] {0, 0});
+	Node n2 = new Node(2, new double[] {1, 0});
+	Node n3 = new Node(3, new double[] {1, 1});
+	Node n4 = new Node(4, new double[] {2, 1});
+	Node n5 = new Node(5, new double[] {1, 2});
+	Node n6 = new Node(6, new double[] {0, 1});
 	
 	g1.addNode(n1);
 	g1.addNode(n2);
@@ -46,15 +46,15 @@ public class TestGraphFactory extends TestCase {
 	
 	MutableValueGraph<Node, Double> g1 = ValueGraphBuilder.undirected().build();
 	
-	Node n0 = new Node(0);
-	Node n1 = new Node(1);
-	Node n2 = new Node(2);
-	Node n3 = new Node(3);
-	Node n4 = new Node(4);
-	Node n5 = new Node(5);
-	Node n6 = new Node(6);
-	Node n7 = new Node(7);
-	Node n8 = new Node(8);
+	Node n0 = new Node(0, new double[] {0, 1});
+	Node n1 = new Node(1, new double[] {1, 2});
+	Node n2 = new Node(2, new double[] {2, 2});
+	Node n3 = new Node(3, new double[] {3, 2});
+	Node n4 = new Node(4, new double[] {4, 1});
+	Node n5 = new Node(5, new double[] {3, 0});
+	Node n6 = new Node(6, new double[] {2, 0});
+	Node n7 = new Node(7, new double[] {1, 0});
+	Node n8 = new Node(8, new double[] {2, 1});
 	
 	g1.addNode(n0);
 	g1.addNode(n1);

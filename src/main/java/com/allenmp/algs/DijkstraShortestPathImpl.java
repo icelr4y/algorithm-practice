@@ -1,4 +1,4 @@
-package com.allenmp.astar;
+package com.allenmp.algs;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -45,7 +45,7 @@ public class DijkstraShortestPathImpl<T> implements ShortestPathAlg<T> {
 
 	calculate(start, goal);;
 
-	if (nodeToDist.get(goal).equals(Double.POSITIVE_INFINITY)) {
+	if (Double.isInfinite(nodeToDist.get(goal))) {
 	    // goal is unreachable
 	    return new ArrayList<>();
 	}
@@ -64,6 +64,13 @@ public class DijkstraShortestPathImpl<T> implements ShortestPathAlg<T> {
     }
 
     public double pathLength(T start, T goal) {
+	if (!graph.nodes().contains(start)) {
+	    throw new IllegalArgumentException("Graph does not contain start node: " + start);
+	}
+	if (!graph.nodes().contains(goal)) {
+	    throw new IllegalArgumentException("Graph does not contain goal node: " + goal);
+	}
+	
 	calculate(start, goal);
 	
 	double minLength = nodeToDist.get(goal);
@@ -78,6 +85,8 @@ public class DijkstraShortestPathImpl<T> implements ShortestPathAlg<T> {
 	}
 	
 	// init
+	
+	// TODO use PriorityQueue
 	Set<T> q = new HashSet<>(graph.nodes());
 	nodeToDist.clear();
 	nodeToPrev.clear();

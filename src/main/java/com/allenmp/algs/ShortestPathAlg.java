@@ -1,4 +1,4 @@
-package com.allenmp.astar;
+package com.allenmp.algs;
 
 import java.util.List;
 

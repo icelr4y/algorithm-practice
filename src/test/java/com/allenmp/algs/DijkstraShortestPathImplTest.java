@@ -1,4 +1,4 @@
-package com.allenmp.astar;
+package com.allenmp.algs;
 
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
@@ -7,6 +7,8 @@ import java.util.List;
 
 import org.junit.Test;
 
+import com.allenmp.algs.DijkstraShortestPathImpl;
+import com.allenmp.algs.ShortestPathAlg;
 import com.google.common.graph.ValueGraph;
 
 public class DijkstraShortestPathImplTest {

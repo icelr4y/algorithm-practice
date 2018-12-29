@@ -1,16 +1,33 @@
-package com.allenmp.astar;
+package com.allenmp.algs;
+
+import com.allenmp.algs.EuclideanDistance;
 
 public class Node {
 
     private int id;
+    private double[] coords;
 
     public Node(int id) {
 	super();
 	this.id = id;
     }
 
+    public Node(int id, double[] xy) {
+	super();
+	this.id = id;
+	this.coords = xy;
+    }
+
     public int getId() {
 	return id;
+    }
+
+    public double[] getCoords() { 
+	return coords;
+    }
+    
+    public double distanceTo(Node other) {
+	return new EuclideanDistance().between(this, other);
     }
 
     @Override

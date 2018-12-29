@@ -17,33 +17,59 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.graph.ValueGraph;
 
-public class DijkstraShortestPathImpl<T> implements ShortestPathAlg<T> {
+public class DijkstraShortestPath<T> implements ShortestPathAlg<T> {
 
-    private static final Logger LOG = LoggerFactory.getLogger(DijkstraShortestPathImpl.class);
+    private static final Logger LOG = LoggerFactory.getLogger(DijkstraShortestPath.class);
 
     private ValueGraph<T, Double> graph;
     private Map<T, Double> nodeToDist = new HashMap<>();
     private Map<T, T> nodeToPrev = new HashMap<>();
+
+    private T start;
+    private T goal;
     private boolean calc = false;
 
-    public DijkstraShortestPathImpl(ValueGraph<T, Double> graph) {
+    public DijkstraShortestPath(ValueGraph<T, Double> graph) {
 	super();
 	this.graph = Objects.requireNonNull(graph);
     }
 
-    public List<T> path(T start, T goal) {
-	if (!graph.nodes().contains(start)) {
-	    throw new IllegalArgumentException("Graph does not contain start node: " + start);
-	}
-	if (!graph.nodes().contains(goal)) {
-	    throw new IllegalArgumentException("Graph does not contain goal node: " + goal);
-	}
+    public void setEndpoints(T start, T goal) {
+	setStart(start);
+	setGoal(goal);
+    }
 
+    public void setStart(T newStart) {
+	if (!graph.nodes().contains(newStart)) {
+	    throw new IllegalArgumentException("Graph does not contain start node: " + newStart);
+	}
+	if (!newStart.equals(start)) {
+	    calc = false;
+	}
+	this.start = newStart;
+    }
+
+    public void setGoal(T newGoal) {
+	if (!graph.nodes().contains(newGoal)) {
+	    throw new IllegalArgumentException("Graph does not contain goal node: " + newGoal);
+	}
+	if (!newGoal.equals(goal)) {
+	    calc = false;
+	}
+	this.goal = newGoal;
+    }
+
+    public int countVisited() {
+	calculate();
+	return nodeToPrev.size();
+    }
+    
+    public List<T> path() {
 	if (goal == start) {
 	    return Arrays.asList(start, start);
 	}
 
-	calculate(start, goal);;
+	calculate();
 
 	if (Double.isInfinite(nodeToDist.get(goal))) {
 	    // goal is unreachable
@@ -63,29 +89,27 @@ public class DijkstraShortestPathImpl<T> implements ShortestPathAlg<T> {
 	return path;
     }
 
-    public double pathLength(T start, T goal) {
-	if (!graph.nodes().contains(start)) {
-	    throw new IllegalArgumentException("Graph does not contain start node: " + start);
-	}
-	if (!graph.nodes().contains(goal)) {
-	    throw new IllegalArgumentException("Graph does not contain goal node: " + goal);
-	}
-	
-	calculate(start, goal);
-	
+    public double pathLength() {
+
+	calculate();
+
 	double minLength = nodeToDist.get(goal);
 	LOG.debug("FinalDistances: nodeToDist={} min={}", nodeToDist, minLength);
 	return minLength;
     }
 
-    private void calculate(T start, T goal) {
-	if (calc == true) { 
+    private void calculate() {
+	if (calc == true) {
 	    LOG.trace("AlreadyCalculated");
 	    return;
 	}
 	
-	// init
+	Objects.requireNonNull(start);
+	Objects.requireNonNull(goal);
 	
+
+	// init
+
 	// TODO use PriorityQueue
 	Set<T> q = new HashSet<>(graph.nodes());
 	nodeToDist.clear();
@@ -98,7 +122,7 @@ public class DijkstraShortestPathImpl<T> implements ShortestPathAlg<T> {
 	nodeToDist.put(start, 0.0);
 
 	while (!q.isEmpty()) {
-	    
+
 	    // find closest unvisited node U
 	    T u = Collections.min(q, new Comparator<T>() {
 		@Override
@@ -119,8 +143,7 @@ public class DijkstraShortestPathImpl<T> implements ShortestPathAlg<T> {
 		calc = true;
 		return;
 	    }
-	    
-	    
+
 	    // shortest (cumulative) path to each of U's neighbors N
 	    for (T n : graph.adjacentNodes(u)) {
 
@@ -137,7 +160,7 @@ public class DijkstraShortestPathImpl<T> implements ShortestPathAlg<T> {
 		}
 	    }
 	}
-	
+
 	calc = true;
     }
 

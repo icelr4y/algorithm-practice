@@ -3,6 +3,11 @@ package com.allenmp.algs;
 import java.util.List;
 
 public interface ShortestPathAlg<T> {
-    List<T> path(T start, T goal);
-    double pathLength(T start, T goal);
+    void setStart(T start);
+    void setGoal(T goal);
+    void setEndpoints(T start, T goal);
+    List<T> path();
+    double pathLength();
+    int countVisited();
 }
+

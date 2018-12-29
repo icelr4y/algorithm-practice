@@ -17,13 +17,17 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.graph.ValueGraph;
 
-public class AstarShortestPathImpl<T> implements ShortestPathAlg<T> {
+public class AstarShortestPath<T> implements ShortestPathAlg<T> {
 
-    private static final Logger LOG = LoggerFactory.getLogger(DijkstraShortestPathImpl.class);
+    private static final Logger LOG = LoggerFactory.getLogger(DijkstraShortestPath.class);
 
     private ValueGraph<T, Double> graph;
     private DistanceFunction<T> heuristic;
 
+    private T start;
+    private T goal;
+    private boolean calc = false;
+    
     // Actual distance from source to node
     private Map<T, Double> nodeToGScore = new HashMap<>();
 
@@ -32,27 +36,44 @@ public class AstarShortestPathImpl<T> implements ShortestPathAlg<T> {
     private Map<T, Double> nodeToFScore = new HashMap<>();
     
     private Map<T, T> nodeToPrev = new HashMap<>();
-    private boolean calc = false;
 
-    public AstarShortestPathImpl(ValueGraph<T, Double> graph, DistanceFunction<T> heuristic) {
+    public AstarShortestPath(ValueGraph<T, Double> graph, DistanceFunction<T> heuristic) {
 	super();
 	this.graph = Objects.requireNonNull(graph);
 	this.heuristic = Objects.requireNonNull(heuristic);
     }
-
-    public List<T> path(T start, T goal) {
-	if (!graph.nodes().contains(start)) {
-	    throw new IllegalArgumentException("Graph does not contain start node: " + start);
+    
+    public void setEndpoints(T start, T goal) {
+	setStart(start);
+	setGoal(goal);
+    }
+    
+    public void setStart(T newStart) {
+	if (!graph.nodes().contains(newStart)) {
+	    throw new IllegalArgumentException("Graph does not contain start node: " + newStart);
 	}
-	if (!graph.nodes().contains(goal)) {
-	    throw new IllegalArgumentException("Graph does not contain goal node: " + goal);
+	if (!newStart.equals(start)) {
+	    calc = false;
 	}
+	this.start = newStart;
+    }
+    
+    public void setGoal(T newGoal) {
+	if (!graph.nodes().contains(newGoal)) {
+	    throw new IllegalArgumentException("Graph does not contain goal node: " + newGoal);
+	}
+	if (!newGoal.equals(goal)) {
+	    calc = false;
+	}
+	this.goal = newGoal;
+    }
 
+    public List<T> path() {
 	if (goal == start) {
 	    return Arrays.asList(start, start);
 	}
 
-	calculate(start, goal);;
+	calculate();
 
 	if (Double.isInfinite(nodeToGScore.get(goal))) {
 	    // goal is unreachable
@@ -71,27 +92,28 @@ public class AstarShortestPathImpl<T> implements ShortestPathAlg<T> {
 	LOG.debug("Path: {}", path);
 	return path;
     }
+    
+    public int countVisited() {
+	calculate();
+	return nodeToPrev.size();
+    }
 
-    public double pathLength(T start, T goal) {
-	if (!graph.nodes().contains(start)) {
-	    throw new IllegalArgumentException("Graph does not contain start node: " + start);
-	}
-	if (!graph.nodes().contains(goal)) {
-	    throw new IllegalArgumentException("Graph does not contain goal node: " + goal);
-	}
-	
-	calculate(start, goal);
+    public double pathLength() {
+	calculate();
 	
 	double minLength = nodeToGScore.get(goal);
 	LOG.debug("FinalDistances: nodeToDist={} min={}", nodeToGScore, minLength);
-	return minLength;
+	return minLength;	
     }
-
-    private void calculate(T start, T goal) {
+    
+    private void calculate() {
 	if (calc == true) { 
 	    LOG.trace("AlreadyCalculated");
 	    return;
 	}
+	
+	Objects.requireNonNull(start);
+	Objects.requireNonNull(goal);
 	
 	// init
 	

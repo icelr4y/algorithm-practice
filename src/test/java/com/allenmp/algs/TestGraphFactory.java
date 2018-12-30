@@ -19,7 +19,40 @@ public class TestGraphFactory {
     private static final Logger LOG = LoggerFactory.getLogger(TestGraphFactory.class);
 
     /**
-     * Creates a graph approximately like the animated example at
+     * Creates a directed graph approximately like the example at
+     * https://www.geeksforgeeks.org/bellman-ford-algorithm-dp-23/
+     * 
+     * @return
+     */
+    public static ValueGraph<Node, Double> g4gBellmanFordExample() {
+	MutableValueGraph<Node, Double> g = ValueGraphBuilder.directed().build();
+
+	Node n1 = new Node(1, new double[] { 0, 1 });
+	Node n2 = new Node(2, new double[] { 2, 2 });
+	Node n3 = new Node(3, new double[] { 1, 0 });
+	Node n4 = new Node(4, new double[] { 3, 0 });
+	Node n5 = new Node(5, new double[] { 4, 1 });
+
+	g.addNode(n1);
+	g.addNode(n2);
+	g.addNode(n3);
+	g.addNode(n4);
+	g.addNode(n5);
+
+	g.putEdgeValue(n1, n2, -1.0);
+	g.putEdgeValue(n1, n3, 4.0);
+	g.putEdgeValue(n2, n3, 3.0);
+	g.putEdgeValue(n2, n4, 2.0);
+	g.putEdgeValue(n2, n5, 2.0);
+	g.putEdgeValue(n4, n2, 1.0);
+	g.putEdgeValue(n4, n3, 5.0);
+	g.putEdgeValue(n5, n4, -3.0);
+	
+	return ImmutableValueGraph.copyOf(g);
+    }
+
+    /**
+     * Creates an undirected graph approximately like the animated example at
      * https://en.wikipedia.org/wiki/A*_search_algorithm
      * 
      * @return
@@ -89,7 +122,7 @@ public class TestGraphFactory {
     }
 
     /**
-     * Creates an example graph roughly like the one at
+     * Creates an undirected graph roughly like the one at
      * https://en.wikipedia.org/wiki/Dijkstra%27s_algorithm.
      * 
      * @return
@@ -125,7 +158,7 @@ public class TestGraphFactory {
     }
 
     /**
-     * Creates an example graph roughly like the one at
+     * Creates an undirected graph roughly like the one at
      * https://www.geeksforgeeks.org/dijkstras-shortest-path-algorithm-greedy-algo-7/.
      * 
      * @return
@@ -169,11 +202,6 @@ public class TestGraphFactory {
 	g.putEdgeValue(n7, n8, 7.0);
 
 	return ImmutableValueGraph.copyOf(g);
-    }
-
-    public ValueGraph<Node, Double> g4gAstarExample() {
-	// https://www.geeksforgeeks.org/a-search-algorithm/
-	return null;
     }
 
 }

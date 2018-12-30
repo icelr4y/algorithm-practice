@@ -90,7 +90,6 @@ public class DijkstraShortestPath<T> implements ShortestPathAlg<T> {
     }
 
     public double pathLength() {
-
 	calculate();
 
 	double minLength = nodeToDist.get(goal);

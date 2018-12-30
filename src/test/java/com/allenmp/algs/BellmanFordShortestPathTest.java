@@ -45,9 +45,19 @@ public class BellmanFordShortestPathTest {
 
 	List<Node> path = alg.path();
 	assertArrayEquals(new Node[] { start, new Node(3), new Node(6), goal}, path.toArray());
-	
-	
-	
     }
+
+    @Test(expected=IllegalStateException.class)
+    public void shouldFailForNegativeCycleGraphs() throws Exception {
+	ValueGraph<Node, Double> g = TestGraphFactory.negativeCycleGraph();
+	ShortestPathAlg<Node> alg = new BellmanFordShortestPath<Node>(g);
+	
+	Node start = g.nodes().stream().filter(n -> n.getId() == 1).findAny().get();
+	Node goal = g.nodes().stream().filter(n -> n.getId() == 5).findAny().get();
+	alg.setEndpoints(start, goal);
+
+	alg.pathLength();
+    }
+    
     
 }

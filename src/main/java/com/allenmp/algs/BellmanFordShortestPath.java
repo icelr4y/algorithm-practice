@@ -120,7 +120,9 @@ public class BellmanFordShortestPath<T> implements ShortestPathAlg<T> {
 	if (calc) {
 	    return;
 	}
-
+	Objects.requireNonNull(start);
+	Objects.requireNonNull(goal);
+	
 	for (T n : graph.nodes()) {
 	    nodeToDist.put(n, Double.POSITIVE_INFINITY);
 	}

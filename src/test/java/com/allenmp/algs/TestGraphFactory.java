@@ -47,7 +47,7 @@ public class TestGraphFactory {
 	g.putEdgeValue(n4, n2, 1.0);
 	g.putEdgeValue(n4, n3, 5.0);
 	g.putEdgeValue(n5, n4, -3.0);
-	
+
 	return ImmutableValueGraph.copyOf(g);
     }
 
@@ -119,6 +119,39 @@ public class TestGraphFactory {
 
 	return ImmutableValueGraph.copyOf(g);
 
+    }
+
+    /**
+     * A directed graph with a cycle of negative weights, really a modified
+     * version of {@link #g4gBellmanFordExample()}.
+     * 
+     * @return
+     */
+    public static ValueGraph<Node, Double> negativeCycleGraph() {
+	MutableValueGraph<Node, Double> g = ValueGraphBuilder.directed().build();
+
+	Node n1 = new Node(1, new double[] { 0, 1 });
+	Node n2 = new Node(2, new double[] { 2, 2 });
+	Node n3 = new Node(3, new double[] { 1, 0 });
+	Node n4 = new Node(4, new double[] { 3, 0 });
+	Node n5 = new Node(5, new double[] { 4, 1 });
+
+	g.addNode(n1);
+	g.addNode(n2);
+	g.addNode(n3);
+	g.addNode(n4);
+	g.addNode(n5);
+
+	g.putEdgeValue(n1, n2, -1.0);
+	g.putEdgeValue(n1, n3, 4.0);
+	g.putEdgeValue(n2, n3, 3.0);
+	g.putEdgeValue(n2, n4, 2.0); 
+	g.putEdgeValue(n2, n5, -2.0); // flipped
+	g.putEdgeValue(n4, n2, -1.0); // flipped
+	g.putEdgeValue(n4, n3, 5.0);
+	g.putEdgeValue(n5, n4, -3.0);
+
+	return ImmutableValueGraph.copyOf(g);
     }
 
     /**

@@ -2,6 +2,7 @@ package com.allenmp.algs;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -10,6 +11,8 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.PriorityQueue;
+import java.util.Queue;
 import java.util.Set;
 
 import org.slf4j.Logger;
@@ -108,31 +111,32 @@ public class DijkstraShortestPath<T> implements ShortestPathAlg<T> {
 	
 
 	// init
-
-	// TODO use PriorityQueue
-	Set<T> q = new HashSet<>(graph.nodes());
 	nodeToDist.clear();
 	nodeToPrev.clear();
 	for (T n : graph.nodes()) {
 	    nodeToDist.put(n, Double.POSITIVE_INFINITY);
 	}
-
+	
 	// source-source distance = 0
 	nodeToDist.put(start, 0.0);
 
-	while (!q.isEmpty()) {
+	
+	// Priority Queue to always return closest unvisited node
+	Queue<T> unvisited = new PriorityQueue<>(new Comparator<T>() {
+	    @Override
+	    public int compare(T o1, T o2) {
+		return nodeToDist.get(o1).compareTo(nodeToDist.get(o2));
+	    }
+	});
+	unvisited.addAll(graph.nodes());
 
-	    // find closest unvisited node U
-	    T u = Collections.min(q, new Comparator<T>() {
-		@Override
-		public int compare(T o1, T o2) {
-		    return nodeToDist.get(o1).compareTo(nodeToDist.get(o2));
-		}
-	    });
+	while (!unvisited.isEmpty()) {
+	    //  next unvisited node
+	    T u = unvisited.poll();
 	    double dist = nodeToDist.get(u);
 
 	    // mark U as "visited"
-	    q.remove(u);
+	    unvisited.remove(u);
 
 	    LOG.trace("MinDist: node={} dist={}", u, dist);
 

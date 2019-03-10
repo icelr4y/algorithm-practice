@@ -192,7 +192,7 @@ public class TestGraphFactory {
 
     /**
      * Creates an undirected graph roughly like the one at
-     * https://www.geeksforgeeks.org/dijkstras-shortest-path-algorithm-greedy-algo-7/.
+     * https://www.geeksforgeeks.org/dijkstras-shortest-path-algorithm-greedy-algo-7/
      * 
      * @return
      */

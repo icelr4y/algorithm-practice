@@ -2,18 +2,14 @@ package com.allenmp.algs;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.PriorityQueue;
 import java.util.Queue;
-import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,7 +21,19 @@ public class DijkstraShortestPath<T> implements ShortestPathAlg<T> {
     private static final Logger LOG = LoggerFactory.getLogger(DijkstraShortestPath.class);
 
     private ValueGraph<T, Double> graph;
+
+    // Each node to its final calculated distance
     private Map<T, Double> nodeToDist = new HashMap<>();
+
+    // Priority Queue to always return closest unvisited node
+    private Queue<T> unvisited = new PriorityQueue<>(new Comparator<T>() {
+	@Override
+	public int compare(T o1, T o2) {
+	    return nodeToDist.get(o1).compareTo(nodeToDist.get(o2));
+	}
+    });
+
+    // Each node to the previous node along the calculated shortest route
     private Map<T, T> nodeToPrev = new HashMap<>();
 
     private T start;
@@ -66,7 +74,7 @@ public class DijkstraShortestPath<T> implements ShortestPathAlg<T> {
 	calculate();
 	return nodeToPrev.size();
     }
-    
+
     public List<T> path() {
 	if (goal == start) {
 	    return Arrays.asList(start, start);
@@ -105,66 +113,93 @@ public class DijkstraShortestPath<T> implements ShortestPathAlg<T> {
 	    LOG.trace("AlreadyCalculated");
 	    return;
 	}
-	
+
 	Objects.requireNonNull(start);
 	Objects.requireNonNull(goal);
-	
 
-	// init
 	nodeToDist.clear();
 	nodeToPrev.clear();
-	for (T n : graph.nodes()) {
-	    nodeToDist.put(n, Double.POSITIVE_INFINITY);
-	}
-	
-	// source-source distance = 0
-	nodeToDist.put(start, 0.0);
 
-	
-	// Priority Queue to always return closest unvisited node
-	Queue<T> unvisited = new PriorityQueue<>(new Comparator<T>() {
-	    @Override
-	    public int compare(T o1, T o2) {
-		return nodeToDist.get(o1).compareTo(nodeToDist.get(o2));
+	// Start node is initialized to zero distance, everything else is
+	// unknown
+	unvisited.clear();
+	for (T node : graph.nodes()) {
+	    if (start.equals(node)) {
+		nodeToDist.put(node, 0.0);
+		unvisited.add(node);
+	    } else {
+		nodeToDist.put(node, Double.POSITIVE_INFINITY);
+		unvisited.add(node);
 	    }
-	});
-	unvisited.addAll(graph.nodes());
+	}
 
 	while (!unvisited.isEmpty()) {
-	    //  next unvisited node
-	    T u = unvisited.poll();
-	    double dist = nodeToDist.get(u);
+	    // "visit" next unvisited node
+	    T closestNode = unvisited.poll();
+	    Double distance = nodeToDist.get(closestNode);
 
-	    // mark U as "visited"
-	    unvisited.remove(u);
-
-	    LOG.trace("MinDist: node={} dist={}", u, dist);
+	    LOG.trace("ClosestNode: node={} dist={}", closestNode, distance);
 
 	    // terminate early if we reached the goal
-	    if (goal.equals(u)) {
+	    if (goal.equals(closestNode)) {
 		LOG.trace("Terminating");
 		calc = true;
-		return;
+		break;
 	    }
 
 	    // shortest (cumulative) path to each of U's neighbors N
-	    for (T n : graph.adjacentNodes(u)) {
-
-		double alt = dist + graph.edgeValueOrDefault(u, n, Double.POSITIVE_INFINITY);
-
-		LOG.trace("Neighbor: n={} alt={}", n, alt);
-
-		// update if there's a shorter path to N
-		double oldDist = nodeToDist.get(n);
-		if (alt < oldDist) {
-		    LOG.trace("UpdatedDist: neighbor={} old={} new={}", n, oldDist, alt);
-		    nodeToDist.put(n, alt);
-		    nodeToPrev.put(n, u);
-		}
-	    }
+	    evaluateNeighbors(closestNode);
 	}
 
 	calc = true;
+    }
+
+    private void evaluateNeighbors(T start) {
+
+	for (T neighbor : graph.adjacentNodes(start)) {
+	    double alternate = nodeToDist.get(start) + graph.edgeValueOrDefault(start, neighbor, Double.POSITIVE_INFINITY);
+
+	    LOG.trace("Neighbor: n={} alt={}", neighbor, alternate);
+
+	    // update if there's a shorter path to N
+	    double oldDist = getDistance(neighbor);
+	    if (alternate < oldDist) {
+		LOG.trace("UpdatedDist: neighbor={} old={} new={}", neighbor, oldDist, alternate);
+
+		updateDistance(neighbor, alternate);
+		nodeToPrev.put(neighbor, start);
+	    }
+	}
+    }
+
+    public Double getDistance(T node) {
+	return nodeToDist.get(node);
+    }
+
+    private void updateDistance(T node, Double dist) {
+	nodeToDist.put(node, dist);
+	// remove and re-add to update queue
+	unvisited.remove(node);
+	unvisited.add(node);
+    }
+
+    /**
+     * Keeps track of a graph Node and its shortest distance from the source
+     * 
+     * @author mallen
+     *
+     * @param <X>
+     */
+    private class NodeDist {
+	public T node;
+	public Double distance = Double.POSITIVE_INFINITY;
+
+	public NodeDist(T node, Double distance) {
+	    super();
+	    this.node = node;
+	    this.distance = distance;
+	}
+
     }
 
 }
